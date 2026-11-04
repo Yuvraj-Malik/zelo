@@ -27,6 +27,16 @@ target/
 src-tauri/target/
 src-tauri/gen/
 **/*.rs.bk
+*.pdb
+
+# Built installers / executables (share these via GitHub Releases, not the repo)
+*.exe
+*.msi
+*.msix
+bundle/
+
+# Local dev helpers
+run-dev.bat
 
 # Environment variables & local secrets
 .env

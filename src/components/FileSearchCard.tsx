@@ -49,7 +49,7 @@ export default function FileSearchCard() {
     <section className="card">
       <div className="list-head">
         <h2>
-          Search files by meaning
+          Search inside files (optional)
           {status?.running && <span className="count learned">Indexing</span>}
           {(status?.error || status?.model_missing) && <span className="count warn-badge">Needs attention</span>}
         </h2>
@@ -59,7 +59,7 @@ export default function FileSearchCard() {
         </label>
       </div>
       <p className="muted">
-        Type what a file is about, like “notes on neural networks” or “internship offer letter”, and Spotlight finds it
+        Off by default. When on, you can also type what a file is about, like “notes on neural networks” or “internship offer letter”, and Spotlight finds it
         even if the name doesn't match. Reads PDFs, Word, PowerPoint, text, Markdown and code. Everything stays on this
         PC.
       </p>

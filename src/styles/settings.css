@@ -64,3 +64,6 @@ html.settings-page body {
 .settings .folders li { display: flex; justify-content: space-between; gap: 12px; padding: 8px 2px; border-top: 1px solid #2e2e36; font-size: 13px; }
 .settings .folders li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .settings .folders li.empty { color: #8a8a96; }
+.settings .row.between { justify-content: space-between; align-items: flex-start; }
+.settings .setting-title { font-size: 13px; font-weight: 500; }
+.settings .row.between .muted.small { margin-top: 4px; }

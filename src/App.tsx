@@ -40,23 +40,38 @@ export default function App() {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [aiResults, setAiResults] = useState<SearchResult[]>([]);
   const [fileResults, setFileResults] = useState<SearchResult[]>([]);
-  const [recentResults, setRecentResults] = useState<SearchResult[]>([]);
-  const recentRequestId = useRef(0);
+  const [instantResults, setInstantResults] = useState<SearchResult[]>([]);
+  const instantRequestId = useRef(0);
 
-  // "files i changed today", "pdfs from yesterday": instant, rule-based, no AI.
+  // Time, date and weather: answered directly, no AI.
   useEffect(() => {
-    const id = ++recentRequestId.current;
-    setRecentResults([]);
-    if (query.trim().split(/\s+/).length < 2) return;
+    const id = ++instantRequestId.current;
+    setInstantResults([]);
+    if (!query.trim()) return;
     const t = setTimeout(() => {
-      invoke<SearchResult[]>("recent_files", { query })
+      invoke<SearchResult[]>("instant_answer", { query })
         .then((r) => {
-          if (id !== recentRequestId.current) return;
-          setRecentResults(r);
+          if (id !== instantRequestId.current) return;
+          setInstantResults(r);
           if (r.length) setSelected(0);
         })
         .catch(() => {});
-    }, 150);
+    }, 120);
+    return () => clearTimeout(t);
+  }, [query]);
+  const [nameResults, setNameResults] = useState<SearchResult[]>([]);
+  const nameRequestId = useRef(0);
+
+  // Files and folders by name, from the in-memory index of your drives.
+  useEffect(() => {
+    const id = ++nameRequestId.current;
+    setNameResults([]);
+    if (query.trim().length < 2) return;
+    const t = setTimeout(() => {
+      invoke<SearchResult[]>("file_search", { query })
+        .then((r) => id === nameRequestId.current && setNameResults(r))
+        .catch(() => {});
+    }, 60);
     return () => clearTimeout(t);
   }, [query]);
   const fileRequestId = useRef(0);
@@ -175,6 +190,8 @@ export default function App() {
     setFileResults([]);
     const words = query.trim().split(/\s+/).filter(Boolean).length;
     if (words < 2) return;
+    // General questions ("what is the time") aren't about your files; skip unless they mention one.
+    if (isQuestion(query) && !/\b(files?|pdfs?|docs?|documents?|notes|ppts?|slides|assignments?|reports?)\b/i.test(query)) return;
     const t = setTimeout(() => {
       invoke<SearchResult[]>("semantic_search", { query })
         .then((r) => id === fileRequestId.current && setFileResults(r))
@@ -183,17 +200,17 @@ export default function App() {
     return () => clearTimeout(t);
   }, [query]);
 
-  // Order: AI action, then apps/commands, then files by meaning, then the web fallback.
+  // Order: AI action, apps/commands, files by name, files by content, then the web fallback.
   const combined = useMemo(() => {
     const seen = new Set<string>();
     const local = results.filter((r) => r.id !== "web");
     const web = results.filter((r) => r.id === "web");
-    // Time-based file matches are the most specific answer, so they go first.
-    if (recentResults.length) {
-      return [...recentResults, ...web].filter((r) => !seen.has(r.id) && !!seen.add(r.id));
+    // A direct answer (time, weather) is the result; keep the rest out of the way.
+    if (instantResults.length) {
+      return [...instantResults, ...web].filter((r) => !seen.has(r.id) && !!seen.add(r.id));
     }
-    return [...aiResults, ...local, ...fileResults, ...web].filter((r) => !seen.has(r.id) && !!seen.add(r.id));
-  }, [aiResults, results, fileResults, recentResults]);
+    return [...aiResults, ...local, ...nameResults, ...fileResults, ...web].filter((r) => !seen.has(r.id) && !!seen.add(r.id));
+  }, [aiResults, results, nameResults, fileResults, instantResults]);
 
   // Reset and refocus each time the window is shown.
   useEffect(() => {
@@ -225,7 +242,14 @@ export default function App() {
       e.preventDefault();
       setSelected((s) => Math.max(s - 1, 0));
     } else if (e.key === "Enter" && e.ctrlKey) {
-      run(results.find((r) => r.id === "web"));
+      // On a file: show it in Explorer. Otherwise: search Google.
+      const cur = visible[selected];
+      if (cur?.kind === "file") {
+        invoke("reveal_file", { path: cur.target });
+        invoke("hide_window");
+      } else {
+        run(results.find((r) => r.id === "web"));
+      }
     } else if (e.key === "Enter") {
       run(combined[selected]);
     } else if ((e.key === "c" || e.key === "C") && e.ctrlKey && answer?.text) {
@@ -265,13 +289,13 @@ export default function App() {
             </div>
           )}
           {aiError && <div className="ai-status error">AI unavailable: {aiError}</div>}
-          {answer && recentResults.length === 0 && <AnswerCard {...answer} onOpenSource={openUrl} />}
+          {answer && instantResults.length === 0 && <AnswerCard {...answer} onOpenSource={openUrl} />}
           {visible.length > 0 && (
             <ResultList results={visible} selected={selected} onHover={setSelected} onPick={run} />
           )}
         </>
       )}
-      {query.trim() && !thinking && !answer && aiResults.length === 0 && (
+      {query.trim() && !thinking && !answer && aiResults.length === 0 && instantResults.length === 0 && (
         <div className="hint">Tab to ask AI</div>
       )}
     </div>

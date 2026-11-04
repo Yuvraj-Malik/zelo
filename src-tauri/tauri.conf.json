@@ -23,7 +23,12 @@
         "skipTaskbar": true,
         "resizable": false,
         "visible": false,
-        "shadow": false
+        "shadow": false,
+        "windowEffects": {
+          "effects": [
+            "acrylic"
+          ]
+        }
       }
     ],
     "security": {

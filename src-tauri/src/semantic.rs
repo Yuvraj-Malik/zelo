@@ -25,7 +25,7 @@ const MAX_FILE_BYTES: u64 = 25 * 1024 * 1024;
 const TEXT_CHARS: usize = 2000;
 const BATCH: usize = 16;
 /// Below this similarity a file is probably unrelated.
-const MIN_SCORE: f32 = 0.55;
+const MIN_SCORE: f32 = 0.6;
 const RESCAN_EVERY: Duration = Duration::from_secs(30 * 60);
 
 const SKIP_DIRS: &[&str] = &[
@@ -53,7 +53,8 @@ impl Default for SemanticSettings {
             .filter(|p| p.is_dir())
             .map(|p| p.to_string_lossy().to_string())
             .collect();
-        Self { enabled: true, folders }
+        // Off by default: most people search by name. Can be turned on in Settings.
+        Self { enabled: false, folders }
     }
 }
 
@@ -209,7 +210,7 @@ fn wanted_dir(name: &str) -> bool {
 
 impl Semantic {
     pub fn load(dir: PathBuf) -> Self {
-        let settings = fs::read_to_string(dir.join("semantic.json"))
+        let settings = fs::read_to_string(dir.join("content-search.json"))
             .ok()
             .and_then(|s| serde_json::from_str(&s).ok())
             .unwrap_or_default();
@@ -236,7 +237,7 @@ impl Semantic {
 
     pub fn set_settings(&self, s: SemanticSettings) {
         if let Ok(json) = serde_json::to_string_pretty(&s) {
-            let _ = fs::write(self.dir.join("semantic.json"), json);
+            let _ = fs::write(self.dir.join("content-search.json"), json);
         }
         *self.settings.lock() = s;
         self.request_reindex();

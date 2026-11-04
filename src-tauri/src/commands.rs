@@ -1,4 +1,4 @@
-use crate::{ai, aliases::Alias, icons, providers, recent, semantic, window, AppState};
+use crate::{ai, aliases::Alias, files, icons, instant, providers, semantic, window, AppState};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, sync::Arc};
 use tauri::{AppHandle, Emitter, Manager, State};
@@ -242,43 +242,89 @@ pub async fn pick_folder(app: AppHandle) -> Option<String> {
     .flatten()
 }
 
-/// "files i changed today", "pdfs from yesterday"... Empty if the query isn't a time-based file search.
+
+/// Time, date and weather, answered directly (no AI). Empty if the query isn't one of those.
 #[tauri::command]
-pub async fn recent_files(query: String, state: State<'_, Arc<AppState>>) -> Result<Vec<SearchResult>, String> {
-    let Some(q) = recent::parse(&query) else { return Ok(vec![]) };
-    let folders = state.semantic.settings().folders;
+pub async fn instant_answer(query: String) -> Result<Vec<SearchResult>, String> {
+    if !instant::matches(&query) {
+        return Ok(vec![]);
+    }
+    let ans = tauri::async_runtime::spawn_blocking(move || instant::answer(&query))
+        .await
+        .map_err(|e| e.to_string())?;
+    Ok(ans
+        .map(|a| SearchResult {
+            id: "instant".into(),
+            title: a.title,
+            subtitle: a.subtitle,
+            // With a link, Enter opens it (e.g. the full forecast); otherwise it just closes.
+            kind: if a.url.is_empty() { ResultKind::Calc } else { ResultKind::Web },
+            target: a.url,
+            score: 5000,
+        })
+        .into_iter()
+        .collect())
+}
+
+/// Files and folders whose name matches the query (whole-drive index).
+#[tauri::command]
+pub async fn file_search(query: String, state: State<'_, Arc<AppState>>) -> Result<Vec<SearchResult>, String> {
+    let st = state.inner().clone();
     let hits = tauri::async_runtime::spawn_blocking(move || {
-        let hits = recent::find(&q, &folders, 8);
-        (hits, q.label)
+        st.files.search(&query, 6, |path| st.usage.boost(&format!("file:{path}")))
     })
     .await
     .map_err(|e| e.to_string())?;
-    let (hits, label) = hits;
-    let total = hits.len();
     Ok(hits
         .into_iter()
         .enumerate()
-        .map(|(i, (path, modified))| {
-            let name = path.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
-            let folder = path.parent().map(|d| d.to_string_lossy().to_string()).unwrap_or_default();
-            let path = path.to_string_lossy().to_string();
+        .map(|(i, (path, is_dir, _))| {
+            let p = std::path::Path::new(&path);
+            let name = p.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_else(|| path.clone());
+            let folder = p.parent().map(|d| d.to_string_lossy().to_string()).unwrap_or_default();
             SearchResult {
                 id: format!("file:{path}"),
                 title: name,
-                subtitle: format!("Modified {} · {folder}", recent::when(modified)),
+                subtitle: if is_dir { format!("Folder · {folder}") } else { folder },
                 kind: ResultKind::File,
                 target: path,
-                // Keep newest first, above everything else.
-                score: 4000 - i as i64,
+                score: 100 - i as i64,
             }
         })
-        .chain((total == 0).then(|| SearchResult {
-            id: "recent:none".into(),
-            title: format!("No matching files changed {label}"),
-            subtitle: "Searched the folders set in Settings → Search files by meaning".into(),
-            kind: ResultKind::Command,
-            target: "spotlight:settings".into(),
-            score: 4000,
-        }))
         .collect())
+}
+
+/// Open Explorer with the file selected.
+#[tauri::command]
+pub fn reveal_file(path: String) -> Result<(), String> {
+    std::process::Command::new("explorer.exe")
+        .arg(format!("/select,{path}"))
+        .spawn()
+        .map(|_| ())
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn file_index_status(state: State<'_, Arc<AppState>>) -> files::Status {
+    state.files.status()
+}
+
+#[tauri::command]
+pub fn file_index_refresh(state: State<'_, Arc<AppState>>) {
+    state.files.request_refresh();
+}
+
+/// Is "start with Windows" on?
+#[tauri::command]
+pub fn get_autostart(app: AppHandle) -> bool {
+    use tauri_plugin_autostart::ManagerExt;
+    app.autolaunch().is_enabled().unwrap_or(false)
+}
+
+#[tauri::command]
+pub fn set_autostart(enabled: bool, app: AppHandle) -> Result<(), String> {
+    use tauri_plugin_autostart::ManagerExt;
+    let l = app.autolaunch();
+    let result = if enabled { l.enable() } else { l.disable() };
+    result.map_err(|e| e.to_string())
 }

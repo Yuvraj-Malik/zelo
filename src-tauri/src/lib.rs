@@ -1,10 +1,11 @@
 mod ai;
 mod aliases;
 mod commands;
+mod files;
 mod icons;
+mod instant;
 mod providers;
 mod ranking;
-mod recent;
 mod reminders;
 mod semantic;
 mod timeparse;
@@ -23,6 +24,7 @@ pub struct AppState {
     pub ai: ai::AiConfig,
     pub reminders: reminders::Reminders,
     pub semantic: Arc<semantic::Semantic>,
+    pub files: Arc<files::FileIndex>,
 }
 
 pub fn run() {
@@ -30,6 +32,11 @@ pub fn run() {
     let _ = dotenvy::dotenv();
 
     tauri::Builder::default()
+        // Only one Spotlight at a time: opening it again just shows the search bar.
+        // (Must be the first plugin registered.)
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            window::toggle(app);
+        }))
         .plugin(tauri_plugin_autostart::init(
             tauri_plugin_autostart::MacosLauncher::LaunchAgent,
             None,
@@ -38,6 +45,19 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             let data_dir = app.path().app_data_dir()?;
+            let _ = std::fs::create_dir_all(&data_dir);
+
+            // Installed app: turn on "start with Windows" the first time it runs.
+            // After that the Settings switch decides. (Skipped in dev builds.)
+            #[cfg(not(debug_assertions))]
+            {
+                use tauri_plugin_autostart::ManagerExt;
+                let marker = data_dir.join("autostart-initialized");
+                if !marker.exists() {
+                    let _ = app.autolaunch().enable();
+                    let _ = std::fs::write(&marker, "1");
+                }
+            }
             let icon_dir = data_dir.join("icons");
             let state = Arc::new(AppState {
                 apps: RwLock::new(Vec::new()),
@@ -45,13 +65,16 @@ pub fn run() {
                 aliases: aliases::Aliases::load(data_dir.clone()),
                 ai: ai::AiConfig::load(data_dir.clone()),
                 reminders: reminders::Reminders::load(data_dir.clone()),
-                semantic: Arc::new(semantic::Semantic::load(data_dir)),
+                semantic: Arc::new(semantic::Semantic::load(data_dir.clone())),
+                files: Arc::new(files::FileIndex::new(data_dir)),
                 icon_dir: icon_dir.clone(),
             });
             app.manage(state.clone());
             reminders::start(app.handle().clone(), state.clone());
             // Index documents for search-by-meaning in the background.
             state.semantic.clone().start();
+            // Index file and folder names on all drives (saved, so restarts are instant).
+            state.files.clone().start();
 
             // Load the AI model in the background so the first sentence isn't slow.
             let ai_cfg = state.ai.get();
@@ -99,7 +122,13 @@ pub fn run() {
             commands::semantic_status,
             commands::semantic_reindex,
             commands::pick_folder,
-            commands::recent_files,
+            commands::file_search,
+            commands::reveal_file,
+            commands::file_index_status,
+            commands::file_index_refresh,
+            commands::get_autostart,
+            commands::set_autostart,
+            commands::instant_answer,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Spotlight");

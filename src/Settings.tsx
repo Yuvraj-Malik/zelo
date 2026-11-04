@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import type { Alias, SearchResult } from "./types";
 import AiSettingsCard from "./components/AiSettingsCard";
+import GeneralCard from "./components/GeneralCard";
 import FileSearchCard from "./components/FileSearchCard";
+import NameIndexCard from "./components/NameIndexCard";
 
 export default function Settings() {
   const [aliases, setAliases] = useState<Alias[]>([]);
@@ -61,7 +63,9 @@ export default function Settings() {
         </p>
       </header>
 
+      <GeneralCard />
       <AiSettingsCard />
+      <NameIndexCard />
       <FileSearchCard />
 
       <section className="card">
