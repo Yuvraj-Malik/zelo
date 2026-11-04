@@ -12,7 +12,7 @@ const SearchBar = forwardRef<HTMLInputElement, Props>(({ value, onChange }, ref)
       ref={ref}
       autoFocus
       spellCheck={false}
-      placeholder="Spotlight Search"
+      placeholder="Zelo Search"
       value={value}
       onChange={(e) => onChange(e.target.value)}
     />

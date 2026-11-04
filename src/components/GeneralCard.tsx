@@ -27,7 +27,7 @@ export default function GeneralCard() {
       <div className="row between">
         <div>
           <div className="setting-title">Start with Windows</div>
-          <p className="muted small">Spotlight runs quietly in the tray so Ctrl+Shift+Space works right after you log in.</p>
+          <p className="muted small">Zelo runs quietly in the tray so Alt+Space works right after you log in.</p>
         </div>
         <label className="switch">
           <input

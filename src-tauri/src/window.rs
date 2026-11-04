@@ -14,7 +14,7 @@ pub fn toggle(app: &AppHandle) {
         place_top_center(&win);
         let _ = win.show();
         let _ = win.set_focus();
-        let _ = app.emit("spotlight://shown", ());
+        let _ = app.emit("zelo://shown", ());
     }
 }
 
@@ -37,23 +37,23 @@ pub fn setup_hotkey(app: &App) -> tauri::Result<()> {
     for hk in candidates {
         match app.global_shortcut().register(hk) {
             Ok(()) => {
-                println!("Spotlight hotkey: {hk:?}");
+                println!("Zelo hotkey: {hk:?}");
                 return Ok(());
             }
             Err(e) => eprintln!("Hotkey {hk:?} unavailable: {e}"),
         }
     }
-    eprintln!("No hotkey available; use the tray icon to open Spotlight.");
+    eprintln!("No hotkey available; use the tray icon to open Zelo.");
     Ok(())
 }
 
 pub fn setup_tray(app: &App) -> tauri::Result<()> {
-    let open = MenuItem::with_id(app, "open", "Open Spotlight", true, None::<&str>)?;
+    let open = MenuItem::with_id(app, "open", "Open Zelo", true, None::<&str>)?;
     let settings = MenuItem::with_id(app, "settings", "Settings", true, None::<&str>)?;
     let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
     let menu = Menu::with_items(app, &[&open, &settings, &quit])?;
     let mut tray = TrayIconBuilder::new()
-        .tooltip("Spotlight (Alt+Space)")
+        .tooltip("Zelo (Alt+Space)")
         .menu(&menu)
         .on_menu_event(|app, e| match e.id.as_ref() {
             "open" => toggle(app),
@@ -68,7 +68,7 @@ pub fn setup_tray(app: &App) -> tauri::Result<()> {
     Ok(())
 }
 
-/// Like Spotlight: clicking anywhere else dismisses it.
+/// Like macOS Spotlight: clicking anywhere else dismisses it.
 pub fn hide_on_blur(app: &App) {
     if let Some(win) = app.get_webview_window("main") {
         let w = win.clone();
@@ -89,14 +89,14 @@ pub fn open_settings(app: &AppHandle) {
         return;
     }
     let _ = WebviewWindowBuilder::new(app, "settings", WebviewUrl::App("index.html?view=settings".into()))
-        .title("Spotlight Settings")
+        .title("Zelo Settings")
         .inner_size(760.0, 580.0)
         .min_inner_size(560.0, 420.0)
         .center()
         .build();
 }
 
-/// Like Spotlight: horizontally centred, about a fifth of the way down the screen,
+/// Like macOS Spotlight: horizontally centred, about a fifth of the way down the screen,
 /// so the bar stays put while results grow downward.
 fn place_top_center(win: &tauri::WebviewWindow) {
     let monitor = win.current_monitor().ok().flatten().or_else(|| win.primary_monitor().ok().flatten());

@@ -59,7 +59,7 @@ export default function FileSearchCard() {
         </label>
       </div>
       <p className="muted">
-        Off by default. When on, you can also type what a file is about, like “notes on neural networks” or “internship offer letter”, and Spotlight finds it
+        Off by default. When on, you can also type what a file is about, like “notes on neural networks” or “internship offer letter”, and Zelo finds it
         even if the name doesn't match. Reads PDFs, Word, PowerPoint, text, Markdown and code. Everything stays on this
         PC.
       </p>

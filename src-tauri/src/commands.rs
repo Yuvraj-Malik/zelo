@@ -24,7 +24,7 @@ pub struct SearchResult {
 }
 
 const MAX_RESULTS: usize = 8;
-pub const SETTINGS_TARGET: &str = "spotlight:settings";
+pub const SETTINGS_TARGET: &str = "zelo:settings";
 
 #[tauri::command]
 pub fn search(query: String, state: State<'_, Arc<AppState>>) -> Vec<SearchResult> {
@@ -59,7 +59,7 @@ pub fn execute(
     state.usage.bump(&result.id);
     if let Some(q) = query {
         if let Some(learned) = state.aliases.learn(&q, &result) {
-            let _ = app.emit("spotlight://alias-learned", (learned, result.title.clone()));
+            let _ = app.emit("zelo://alias-learned", (learned, result.title.clone()));
         }
     }
     match result.kind {

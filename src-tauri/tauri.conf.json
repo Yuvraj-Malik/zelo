@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Spotlight",
+  "productName": "Zelo",
   "version": "0.1.0",
-  "identifier": "com.yuvraj.spotlight",
+  "identifier": "com.yuvraj.zelo",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Spotlight",
+        "title": "Zelo",
         "width": 680,
         "height": 72,
         "center": true,

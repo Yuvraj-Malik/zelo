@@ -32,7 +32,7 @@ pub fn run() {
     let _ = dotenvy::dotenv();
 
     tauri::Builder::default()
-        // Only one Spotlight at a time: opening it again just shows the search bar.
+        // Only one Zelo at a time: opening it again just shows the search bar.
         // (Must be the first plugin registered.)
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             window::toggle(app);
@@ -131,5 +131,5 @@ pub fn run() {
             commands::instant_answer,
         ])
         .run(tauri::generate_context!())
-        .expect("error while running Spotlight");
+        .expect("error while running Zelo");
 }

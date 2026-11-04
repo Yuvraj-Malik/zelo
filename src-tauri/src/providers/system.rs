@@ -4,7 +4,7 @@ use std::process::Command;
 
 /// (id, title, subtitle). Settings pages open via ms-settings: URIs.
 const COMMANDS: &[(&str, &str, &str)] = &[
-    ("spotlight:settings", "Spotlight Settings", "Nicknames and preferences"),
+    ("zelo:settings", "Zelo Settings", "Nicknames and preferences"),
     ("media:playpause", "Play / Pause", "Media · works with YouTube, Spotify and more"),
     ("media:next", "Next Track", "Media"),
     ("media:prev", "Previous Track", "Media"),

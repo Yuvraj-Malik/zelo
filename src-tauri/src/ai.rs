@@ -348,7 +348,7 @@ pub struct Source {
     pub url: String,
 }
 
-const UA: &str = "SpotlightForWindows/0.1 (personal desktop launcher)";
+const UA: &str = "Zelo/0.1 (desktop launcher for Windows)";
 const WIKI: &str = "https://en.wikipedia.org/w/api.php";
 
 fn wiki_context(q: &str) -> Option<(String, Source)> {

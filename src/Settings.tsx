@@ -56,9 +56,9 @@ export default function Settings() {
   return (
     <div className="settings">
       <header>
-        <h1>Spotlight Settings</h1>
+        <h1>Zelo Settings</h1>
         <p>
-          Give anything a short name. Spotlight also learns them on its own: pick the same result for the same
+          Give anything a short name. Zelo also learns them on its own: pick the same result for the same
           short query 3 times and it becomes a nickname.
         </p>
       </header>
@@ -119,7 +119,7 @@ export default function Settings() {
         </div>
         {shown.length === 0 ? (
           <p className="empty">
-            {aliases.length === 0 ? "No nicknames yet. Add one above, or just keep using Spotlight." : "No matches."}
+            {aliases.length === 0 ? "No nicknames yet. Add one above, or just keep using Zelo." : "No matches."}
           </p>
         ) : (
           <table>

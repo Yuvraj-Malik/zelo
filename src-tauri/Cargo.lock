@@ -3677,37 +3677,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "spotlight"
-version = "0.1.0"
-dependencies = [
- "base64 0.22.1",
- "chrono",
- "chrono-tz",
- "dotenvy",
- "fuzzy-matcher",
- "meval",
- "open",
- "parking_lot",
- "pdf-extract",
- "png 0.17.16",
- "regex",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-autostart",
- "tauri-plugin-dialog",
- "tauri-plugin-global-shortcut",
- "tauri-plugin-notification",
- "tauri-plugin-single-instance",
- "ureq",
- "urlencoding",
- "walkdir",
- "windows",
- "zip",
-]
-
-[[package]]
 name = "stable_deref_trait"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5594,6 +5563,37 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d1afec51604565183aeb5c54c20aeab286120d4e4460f7f76e3e8bb8c0d99473"
 dependencies = [
  "serde",
+]
+
+[[package]]
+name = "zelo"
+version = "0.1.0"
+dependencies = [
+ "base64 0.22.1",
+ "chrono",
+ "chrono-tz",
+ "dotenvy",
+ "fuzzy-matcher",
+ "meval",
+ "open",
+ "parking_lot",
+ "pdf-extract",
+ "png 0.17.16",
+ "regex",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-autostart",
+ "tauri-plugin-dialog",
+ "tauri-plugin-global-shortcut",
+ "tauri-plugin-notification",
+ "tauri-plugin-single-instance",
+ "ureq",
+ "urlencoding",
+ "walkdir",
+ "windows",
+ "zip",
 ]
 
 [[package]]

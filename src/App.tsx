@@ -103,7 +103,7 @@ export default function App() {
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
-    const un = listen<[string, string]>("spotlight://alias-learned", (e) => {
+    const un = listen<[string, string]>("zelo://alias-learned", (e) => {
       const [alias, title] = e.payload;
       setToast(`Learned: “${alias}” → ${title}`);
       setTimeout(() => setToast(null), 4000);
@@ -214,7 +214,7 @@ export default function App() {
 
   // Reset and refocus each time the window is shown.
   useEffect(() => {
-    const unlisten = listen("spotlight://shown", () => {
+    const unlisten = listen("zelo://shown", () => {
       setQuery("");
       inputRef.current?.focus();
     });

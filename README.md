@@ -1,6 +1,10 @@
-# Spotlight for Windows
+# Zelo
 
-A fast, keyboard-first launcher for Windows, inspired by macOS Spotlight, with a private, on-device AI built in.
+*Zelo* (Italian and Portuguese for "zeal"): a launcher that jumps up the moment you call it.
+
+[![Download for Windows](https://img.shields.io/badge/Download-Windows%20Installer-2ea44f?style=for-the-badge&logo=windows)](https://github.com/Yuvraj-Malik/zelo/releases/latest)
+
+Zelo is a fast, keyboard-first launcher for Windows, inspired by macOS Spotlight, with a private, on-device AI built in.
 
 Press **Alt+Space**, type, press **Enter**.
 
@@ -16,7 +20,7 @@ Built with **Tauri 2 (Rust) + React + TypeScript**. The installer is about 4 MB.
   - **Enter** opens the file. **Ctrl+Enter** shows it in Explorer.
 - **Forgiving matching:** `vsc` finds Visual Studio Code, and words can be in any order.
 - **Learns what you use:** frequently opened results rank higher.
-- **Nicknames:** set your own (`ig` → Instagram), or let Spotlight learn them. If you pick the same result for the same short query three times, it saves that as a nickname.
+- **Nicknames:** set your own (`ig` → Instagram), or let Zelo learn them. If you pick the same result for the same short query three times, it saves that as a nickname.
 
 ### Instant answers (no AI needed)
 - **Calculator:** `45*12`, `sqrt(144)`
@@ -45,9 +49,9 @@ Built with **Tauri 2 (Rust) + React + TypeScript**. The installer is about 4 MB.
 
 ## Install (for users)
 
-1. Download `Spotlight_x.y.z_x64-setup.exe` from **[Releases](../../releases)** and run it.
+1. Download `Zelo_x.y.z_x64-setup.exe` from **[Releases](../../releases)** and run it.
    - If Windows shows "Windows protected your PC", click **More info → Run anyway**. The installer isn't code-signed.
-2. Press **Alt+Space**. If another app already uses Alt+Space, Spotlight falls back to **Ctrl+Shift+Space**.
+2. Press **Alt+Space**. If another app already uses Alt+Space, Zelo falls back to **Ctrl+Shift+Space**.
 3. Optional, for the AI features:
    - Install [Ollama](https://ollama.com).
    - Run `ollama pull qwen2.5:3b`.
@@ -68,8 +72,8 @@ Open **Settings** with **Ctrl+,**, by typing `settings`, or from the tray icon.
 - WebView2 (already included in Windows 10/11)
 
 ```powershell
-git clone https://github.com/Yuvraj-Malik/<repo-name>.git
-cd <repo-name>
+git clone https://github.com/Yuvraj-Malik/zelo.git
+cd zelo
 npm install --legacy-peer-deps
 npx tauri icon app-icon.png    # generates the app icons
 npm run tauri dev              # run in development
